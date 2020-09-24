@@ -1,8 +1,10 @@
-﻿using System;
+﻿using BluetoothChatPrototype.Network;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BluetoothChatPrototype.Network;
 
 namespace BluetoothChatPrototype
 {
@@ -10,8 +12,9 @@ namespace BluetoothChatPrototype
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
-            Console.ReadLine();
+;           var rec = new Receive();
+            rec.Initialize();
+            Console.ReadKey();
         }
     }
 }
