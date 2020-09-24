@@ -111,14 +111,13 @@ namespace BluetoothChatPrototype.Network
 
             var x = rfcommServices.Services;
 
-            foreach(RfcommDeviceService serv in x)
-            {
-                Console.WriteLine("New Service Discovered: " + serv.ConnectionServiceName);
-            }
-
-            if (rfcommServices.Services.Count > 0)
+            if (x.Count > 0)
             {
                 Console.WriteLine("There are services.");
+
+                var service = x[0];
+                    var attributes = await service.GetSdpRawAttributesAsync();
+
             } else
             {
                 Console.WriteLine("There are no services.");
@@ -137,10 +136,6 @@ namespace BluetoothChatPrototype.Network
             Console.WriteLine("Initializing DeviceWatcher");
             StartUnpairedDeviceWatcher();
             Console.WriteLine("DeviceWatcher Started");
-
-
-
-
 
         }
         public async void save() { 
