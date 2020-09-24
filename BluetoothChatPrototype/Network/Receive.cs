@@ -9,7 +9,9 @@ namespace BluetoothChatPrototype.Network
     class Receive
     {
 
-
-
+        public void method()
+        {
+        
+        }
     }
 }
