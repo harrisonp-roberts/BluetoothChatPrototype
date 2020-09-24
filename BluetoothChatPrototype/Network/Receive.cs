@@ -37,6 +37,8 @@ namespace BluetoothChatPrototype.Network
             // Request additional properties
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
+            
+
             deviceWatcher = DeviceInformation.CreateWatcher("(System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\")",
                                                             requestedProperties,
                                                             DeviceInformationKind.AssociationEndpoint);
@@ -51,7 +53,7 @@ namespace BluetoothChatPrototype.Network
 
             deviceWatcher.Updated += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>(async (watcher, deviceInfoUpdate) =>
             {
-                Console.WriteLine("Updated");
+                Console.WriteLine("Device Watcher Updated");
             });
 
             deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, Object>(async (watcher, obj) =>
@@ -75,9 +77,7 @@ namespace BluetoothChatPrototype.Network
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, Object>(async (watcher, obj) =>
             {
                 Console.WriteLine("Stopped");
-
             });
-
 
             deviceWatcher.Start();
         }
@@ -101,7 +101,33 @@ namespace BluetoothChatPrototype.Network
             if(bluetoothDevice == null)
             {
                 Console.WriteLine("Device is null");
+            } else
+            {
+                Console.WriteLine("Device " + bluetoothDevice.Name + " is not null.");
             }
+
+            var cacheMode = BluetoothCacheMode.Uncached;
+            var rfcommServices = await bluetoothDevice.GetRfcommServicesAsync(cacheMode);
+
+            var x = rfcommServices.Services;
+
+            foreach(RfcommDeviceService serv in x)
+            {
+                Console.WriteLine("New Service Discovered: " + serv.ConnectionServiceName);
+            }
+
+            if (rfcommServices.Services.Count > 0)
+            {
+                Console.WriteLine("There are services.");
+            } else
+            {
+                Console.WriteLine("There are no services.");
+            }
+
+            bluetoothDevice.ConnectionStatusChanged += new TypedEventHandler<BluetoothDevice, object>(async (btd, obj) =>
+            {
+                Console.WriteLine("Changed Connection Status for " + btd.Name + " to " + btd.ConnectionStatus);
+            });
 
         }
 
