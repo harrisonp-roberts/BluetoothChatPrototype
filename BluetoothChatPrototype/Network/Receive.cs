@@ -68,10 +68,7 @@ namespace BluetoothChatPrototype.Network
 
             deviceWatcher.Removed += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>(async (watcher, deviceInfoUpdate) =>
             {
-                Console.WriteLine("Removed");
-
-                // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
-
+                Console.WriteLine("Removed device");
             });
 
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, Object>(async (watcher, obj) =>
@@ -101,6 +98,7 @@ namespace BluetoothChatPrototype.Network
             if(bluetoothDevice == null)
             {
                 Console.WriteLine("Device is null");
+                return;
             } else
             {
                 Console.WriteLine("Device " + bluetoothDevice.Name + " is not null.");
@@ -115,12 +113,18 @@ namespace BluetoothChatPrototype.Network
             {
                 Console.WriteLine("There are services.");
 
-                var service = x[0];
-                    var attributes = await service.GetSdpRawAttributesAsync();
+                foreach(var serv in x)
+                {
+                    Console.WriteLine("Device " + dev.Name + " has service: " + serv.ConnectionServiceName);
+                    Console.WriteLine("Host: " + serv.ConnectionHostName.DisplayName);
+                    Console.WriteLine("Access Info: " + serv.DeviceAccessInformation.CurrentStatus);
+                    Console.WriteLine("Service ID: " + serv.ServiceId.Uuid);
+                    Console.WriteLine("Type: " + serv.GetType().FullName);
+                }
 
             } else
             {
-                Console.WriteLine("There are no services.");
+                Console.WriteLine("There are no services on " + dev.Name);
             }
 
             bluetoothDevice.ConnectionStatusChanged += new TypedEventHandler<BluetoothDevice, object>(async (btd, obj) =>
