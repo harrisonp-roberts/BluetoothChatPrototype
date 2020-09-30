@@ -8,7 +8,10 @@ namespace BluetoothChatPrototype.Constants
 {
     class Constants
     {
+        public static readonly string[] deviceProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
         public static readonly Guid broadcastGuid = Guid.Parse("c1d79703-f9d6-4e1a-a825-aa4d09180620");
+        public const string SdpServiceName = "CPSC4210 - Bluetooth Chat Application.";
+
         public const UInt16 SdpServiceNameAttributeId = 0x100;
         public const byte SdpServiceNameAttributeType = (4 << 3) | 5;
     }

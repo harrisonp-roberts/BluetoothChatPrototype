@@ -20,59 +20,45 @@ namespace BluetoothChatPrototype.Network
 
     public class Receive
     {
-        Windows.Devices.Bluetooth.Rfcomm.RfcommServiceProvider _provider;
-        string deviceId;
         DeviceWatcher deviceWatcher;
-
-        public ObservableCollection<DeviceInformation> ResultCollection
+        private BluetoothDevice bluetoothDevice;
+        public ObservableCollection<DeviceInformation> BroadcastingDevices
         {
             get;
-            private set;
+            set;
         }
 
-        private BluetoothDevice bluetoothDevice;
 
-        private void StartUnpairedDeviceWatcher()
+        private void InitWatch()
         {
-            Console.WriteLine("StartUnpairedDeviceWatcher()");
-            // Request additional properties
-            string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
-
-            
 
             deviceWatcher = DeviceInformation.CreateWatcher("(System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\")",
-                                                            requestedProperties,
+                                                            Constants.Constants.deviceProperties,
                                                             DeviceInformationKind.AssociationEndpoint);
 
             // Hook up handlers for the watcher events before starting the watcher
-            deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>(async (watcher, deviceInfo) =>
+            deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, deviceInfo) =>
             {
-                ResultCollection.Add(deviceInfo);
-                // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
+                BroadcastingDevices.Add(deviceInfo);
                 Console.WriteLine("Added " + deviceInfo.Name);
             });
 
-            deviceWatcher.Updated += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>(async (watcher, deviceInfoUpdate) =>
+            deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, Object>((watcher, obj) =>
             {
-                Console.WriteLine("Device Watcher Updated");
-            });
-
-            deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, Object>(async (watcher, obj) =>
-            {
-                foreach (var x in ResultCollection)
+                foreach (var x in BroadcastingDevices)
                 {
                     Console.WriteLine("Connecting to " + x.Name);
                     connect(x);
-                }   
+                }
 
             });
 
-            deviceWatcher.Removed += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>(async (watcher, deviceInfoUpdate) =>
+            deviceWatcher.Removed += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((watcher, deviceInfoUpdate) =>
             {
                 Console.WriteLine("Removed device");
             });
 
-            deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, Object>(async (watcher, obj) =>
+            deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, Object>((watcher, obj) =>
             {
                 Console.WriteLine("Stopped");
             });
@@ -96,11 +82,12 @@ namespace BluetoothChatPrototype.Network
                 return;
             }
 
-            if(bluetoothDevice == null)
+            if (bluetoothDevice == null)
             {
                 Console.WriteLine("Device is null");
                 return;
-            } else
+            }
+            else
             {
                 Console.WriteLine("Device " + bluetoothDevice.Name + " is not null.");
             }
@@ -116,7 +103,7 @@ namespace BluetoothChatPrototype.Network
                 var attributes = await retrievedService.GetSdpRawAttributesAsync();
 
                 Console.WriteLine("Enumerating all SDP Attribute Values being broadcast by the service...");
-                foreach(var val in attributes.Values)
+                foreach (var val in attributes.Values)
                 {
                     Console.WriteLine(val.ToString());
                 }
@@ -213,29 +200,9 @@ namespace BluetoothChatPrototype.Network
 
         public async void Initialize()
         {
-            ResultCollection = new ObservableCollection<DeviceInformation>();
-            Console.WriteLine("Initializing DeviceWatcher");
+            BroadcastingDevices = new ObservableCollection<DeviceInformation>();
             StartUnpairedDeviceWatcher();
-            Console.WriteLine("DeviceWatcher Started");
-
         }
-        public async void save() { 
-            Console.WriteLine("Initializing Receiver");
 
-            var rfcomm = RfcommDeviceService.FromIdAsync(RfcommServiceId.SerialPort.AsString());
-            var selector = BluetoothDevice.GetDeviceSelectorFromPairingState(false);
-
-            deviceWatcher = DeviceInformation.CreateWatcher(selector, null, DeviceInformationKind.AssociationEndpoint);
-
-            deviceWatcher.Added += async (w, i) =>
-            { 
-            };
-
-            Console.WriteLine("Status: " + deviceWatcher.Status);
-
-            selector.GetEnumerator();
-
-            Console.WriteLine(selector);
-        }
     }
 }

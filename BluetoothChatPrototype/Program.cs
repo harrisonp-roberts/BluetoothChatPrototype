@@ -16,7 +16,8 @@ namespace BluetoothChatPrototype
 
             if (input == 'b')
             {
-
+                var broadcast = new Broadcast();
+                broadcast.StartRfcommServer();
             } else if (input == 'r')
             {
                 var rec = new Receive();
