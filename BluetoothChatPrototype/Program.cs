@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BluetoothChatPrototype.Network;
 
 namespace BluetoothChatPrototype
 {
@@ -12,8 +11,18 @@ namespace BluetoothChatPrototype
     {
         static void Main(string[] args)
         {
-;           var rec = new Receive();
-            rec.Initialize();
+            Console.WriteLine("Would you like to broadcast (b) or receive (r)");
+            char input = Console.ReadKey().KeyChar;
+
+            if (input == 'b')
+            {
+
+            } else if (input == 'r')
+            {
+                var rec = new Receive();
+                rec.Initialize();
+            }
+
             Console.ReadKey();
         }
     }

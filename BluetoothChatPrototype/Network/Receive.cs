@@ -12,6 +12,7 @@ using Windows.Foundation;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
+using BluetoothChatPrototype.Constants;
 
 namespace BluetoothChatPrototype.Network
 
@@ -105,27 +106,59 @@ namespace BluetoothChatPrototype.Network
             }
 
             var cacheMode = BluetoothCacheMode.Uncached;
-            var rfcommServices = await bluetoothDevice.GetRfcommServicesAsync(cacheMode);
+            var rfcommServices = await bluetoothDevice.GetRfcommServicesForIdAsync(RfcommServiceId.FromUuid(Constants.Constants.broadcastGuid), cacheMode);
 
-            var x = rfcommServices.Services;
+            var retrievedServices = rfcommServices.Services;
 
-            if (x.Count > 0)
+            if (retrievedServices.Count > 0)
             {
-                
-                Console.WriteLine("There are services.");
+                var retrievedService = retrievedServices[0];
+                var attributes = await retrievedService.GetSdpRawAttributesAsync();
 
-                foreach(var serv in x)
+                Console.WriteLine("Enumerating all SDP Attribute Values being broadcast by the service...");
+                foreach(var val in attributes.Values)
                 {
-                    Console.WriteLine("Device " + dev.Name + " has service: " + serv.ConnectionServiceName);
-                    Console.WriteLine("Host: " + serv.ConnectionHostName.DisplayName);
-                    Console.WriteLine("Access Info: " + serv.DeviceAccessInformation.CurrentStatus);
-                    Console.WriteLine("Service ID: " + serv.ServiceId.Uuid);
-                    Console.WriteLine("Type: " + serv.GetType().FullName);
+                    Console.WriteLine(val.ToString());
                 }
 
-            } else
+                var attributeReader = DataReader.FromBuffer(attributes[Constants.Constants.SdpServiceNameAttributeId]);
+                var attributeType = attributeReader.ReadByte();
+
+                if (attributeType != Constants.Constants.SdpServiceNameAttributeType)
+                {
+                    Console.WriteLine("Unexpected format. Exiting");
+                    return;
+                }
+                var serviceNameLength = attributeReader.ReadByte();
+
+                //attributeReader.UnicodeEncoding = UnicodeEncoding.Utf8;
+                StreamSocket chatSocket = null;
+                DataWriter chatWriter = null;
+                lock (this)
+                {
+                    chatSocket = new StreamSocket();
+                }
+                try
+                {
+                    await chatSocket.ConnectAsync(retrievedService.ConnectionHostName, retrievedService.ConnectionServiceName);
+
+                    chatWriter = new DataWriter(chatSocket.OutputStream);
+
+                    DataReader chatReader = new DataReader(chatSocket.InputStream);
+                    ReceiveStringLoop(chatReader, chatSocket);
+                }
+                catch (Exception ex) when ((uint)ex.HResult == 0x80070490) // ERROR_ELEMENT_NOT_FOUND
+                {
+                    Console.WriteLine("Are you sure you're running the correct thing?");
+                }
+                catch (Exception ex) when ((uint)ex.HResult == 0x80072740) // WSAEADDRINUSE
+                {
+                    Console.WriteLine("There may be another active connection on the server.");
+                }
+            }
+            else
             {
-                Console.WriteLine("There are no services on " + dev.Name);
+                Console.WriteLine("There are no valid services on " + dev.Name);
             }
 
             bluetoothDevice.ConnectionStatusChanged += new TypedEventHandler<BluetoothDevice, object>(async (btd, obj) =>
@@ -135,7 +168,50 @@ namespace BluetoothChatPrototype.Network
 
         }
 
-        public void Initialize()
+        private async void ReceiveStringLoop(DataReader chatReader, StreamSocket chatSocket)
+        {
+            try
+            {
+                uint size = await chatReader.LoadAsync(sizeof(uint));
+                if (size < sizeof(uint))
+                {
+                    //TODO cleanup and exit. Host disconnected
+                    return;
+                }
+
+                uint stringLength = chatReader.ReadUInt32();
+                uint actualStringLength = await chatReader.LoadAsync(stringLength);
+                if (actualStringLength != stringLength)
+                {
+                    // The underlying socket was closed before we were able to read the whole data
+                    return;
+                }
+
+                //ConversationList.Items.Add("Received: " + chatReader.ReadString(stringLength));
+
+                ReceiveStringLoop(chatReader, chatSocket);
+            }
+            catch (Exception ex)
+            {
+                lock (this)
+                {
+                    if (chatSocket == null)
+                    {
+                        // Do not print anything here -  the user closed the socket.
+                        if ((uint)ex.HResult == 0x80072745)
+                            Console.WriteLine("Disconnect triggered by remote device.");
+                        else if ((uint)ex.HResult == 0x800703E3)
+                            Console.WriteLine("The I / O operation has been aborted because of either a thread exit or an application request.");
+                    }
+                    else
+                    {
+                        //Disconnect("Read stream failed with error: " + ex.Message);
+                    }
+                }
+            }
+        }
+
+        public async void Initialize()
         {
             ResultCollection = new ObservableCollection<DeviceInformation>();
             Console.WriteLine("Initializing DeviceWatcher");
