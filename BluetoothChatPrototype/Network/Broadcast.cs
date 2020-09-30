@@ -8,8 +8,8 @@ namespace BluetoothChatPrototype.Network
 {
     class Broadcast
     {
-        private RfcommServiceProvider rfcommProvider;
-        private StreamSocketListener socketListener;
+        private RfcommServiceProvider commServiceProvider;
+        private StreamSocketListener listener;
         private StreamSocket socket;
         private DataWriter writer;
 
@@ -17,91 +17,73 @@ namespace BluetoothChatPrototype.Network
         {
             try
             {
-                rfcommProvider = await RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(Constants.Constants.broadcastGuid));
+                commServiceProvider = await RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(Constants.Constants.broadcastGuid));
+                listener = new StreamSocketListener();
+                listener.ConnectionReceived += recieveConnection;
+                var rfcomm = commServiceProvider.ServiceId.AsString();
+
+                await listener.BindServiceNameAsync(commServiceProvider.ServiceId.AsString(), SocketProtectionLevel.BluetoothEncryptionAllowNullAuthentication);
+
+                Console.WriteLine("Initializing Session Description Protocal (SDP) Attributes");
+                setupBroadcastAttributes(commServiceProvider);
+                Console.WriteLine("SDP Attributes Initialized");
             }
-            // Catch exception if bluetooth is not enabled.
-            catch (Exception ex) when ((uint)ex.HResult == 0x800710DF)
+            catch (Exception ex)
             {
-                // Bluetooth is off
-                Console.WriteLine("Bluetooth is not enabled: " + ex.Message);
+                Console.WriteLine("An error occured advertising the bluetooth connection");
+                Console.WriteLine(ex.Message);
                 return;
             }
 
-            // Create a listener for this service and start listening
-            socketListener = new StreamSocketListener();
-            socketListener.ConnectionReceived += OnConnectionReceived;
-            var rfcomm = rfcommProvider.ServiceId.AsString();
-
-            await socketListener.BindServiceNameAsync(rfcommProvider.ServiceId.AsString(), SocketProtectionLevel.BluetoothEncryptionAllowNullAuthentication);
-
-            InitializeSDPAttributes(rfcommProvider);
-
-            try
-            {
-                rfcommProvider.StartAdvertising(socketListener, true);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Could not advertise: " + e.Message);
-                return;
-            }
-
-            Console.WriteLine("Listening for connections.");
+            Console.WriteLine("Broadcasting Connections.");
         }
 
-        // Init the SDP attributes
-        private void InitializeSDPAttributes(RfcommServiceProvider rfcommProvider)
+        private void setupBroadcastAttributes(RfcommServiceProvider rfcommProvider)
         {
             Console.WriteLine("Initializing SDP Attributes...");
-            var sdpWriter = new DataWriter();
-            sdpWriter.WriteByte(Constants.Constants.SdpServiceNameAttributeType);
-            sdpWriter.WriteByte((byte)Constants.Constants.SdpServiceName.Length);
-            sdpWriter.UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.Utf8;
-            sdpWriter.WriteString(Constants.Constants.SdpServiceName);
+            var writer = new DataWriter();
+            writer.WriteByte(Constants.Constants.type);
+            writer.WriteByte((byte)Constants.Constants.serviceName.Length);
+            writer.UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.Utf8;
+            writer.WriteString(Constants.Constants.serviceName);
 
-            // Set the SDP Attribute on the RFCOMM Service Provider.
-            rfcommProvider.SdpRawAttributes.Add(Constants.Constants.SdpServiceNameAttributeId, sdpWriter.DetachBuffer());
-            Console.WriteLine("Done initializing SDP attributes.");
+            rfcommProvider.SdpRawAttributes.Add(Constants.Constants.serviceNameID, writer.DetachBuffer());
         }
 
-        // Connect when there is a connection received.
-        private async void OnConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
+        private async void recieveConnection(StreamSocketListener listener, StreamSocketListenerConnectionReceivedEventArgs args)
         {
-            Console.WriteLine("Connection Received from: " + sender.Information);
-            // Make sure the old listener is gone.
-            socketListener.Dispose();
-            socketListener = null;
+            Console.WriteLine("Connection Received from: " + listener.Information);
 
             try
             {
                 socket = args.Socket;
+                var device = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
+
+                writer = new DataWriter(socket.OutputStream);
+                var reader = new DataReader(socket.InputStream);
+                Console.WriteLine("Connected to Client: " + device.Name);
             }
             catch(Exception e)
             {
-                Disconnect();
+                disconnect();
                 Console.WriteLine("Error while creating socket: " + e.Message);
-                return;
             }
 
-            var device = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
-            writer = new DataWriter(socket.OutputStream);
-            var reader = new DataReader(socket.InputStream);
-            Console.WriteLine("Connected to Client: " + device.Name);
         }
 
-        private async void Disconnect()
+        private void disconnect()
         {
-            if(rfcommProvider != null)
+            if(commServiceProvider != null)
             {
-                rfcommProvider.StopAdvertising();
-                rfcommProvider = null;
+                commServiceProvider.StopAdvertising();
+                commServiceProvider = null;
             }
 
-            if(socketListener != null)
+            if(listener != null)
             {
-                socketListener.Dispose();
-                socketListener = null;
+                listener.Dispose();
+                listener = null;
             }
 
             if(socket != null)

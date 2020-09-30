@@ -13,7 +13,7 @@ namespace BluetoothChatPrototype
         {
             Console.WriteLine("Would you like to broadcast (b) or receive (r)");
             char input = Console.ReadKey().KeyChar;
-
+            Console.WriteLine();
             if (input == 'b')
             {
                 var broadcast = new Broadcast();
