@@ -111,6 +111,7 @@ namespace BluetoothChatPrototype.Network
 
             if (x.Count > 0)
             {
+                
                 Console.WriteLine("There are services.");
 
                 foreach(var serv in x)
