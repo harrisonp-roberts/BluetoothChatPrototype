@@ -12,8 +12,10 @@ namespace BluetoothChatPrototype
     {
         static void Main(string[] args)
         {
-;           var rec = new Receive();
-            rec.Initialize();
+            var broadcast = new Broadcast();
+            broadcast.StartRfcommServer();
+;           //var rec = new Receive();
+            //rec.Initialize();
             Console.ReadKey();
         }
     }

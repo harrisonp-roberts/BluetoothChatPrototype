@@ -55,8 +55,11 @@
     <Reference Include="Windows">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.19041.0\Windows.winmd</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants\Constants.cs" />
+    <Compile Include="Network\Broadcast.cs" />
     <Compile Include="Network\Receive.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

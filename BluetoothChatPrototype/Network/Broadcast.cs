@@ -115,6 +115,7 @@ namespace BluetoothChatPrototype.Network
                 writer.DetachStream();
                 writer = null;
             }
+            Console.WriteLine("Disconnected from device.");
          }
 
     }
