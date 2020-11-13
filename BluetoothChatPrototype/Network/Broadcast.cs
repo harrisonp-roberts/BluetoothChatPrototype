@@ -13,7 +13,7 @@ namespace BluetoothChatPrototype.Network
         private StreamSocket socket;
         private DataWriter writer;
 
-        public async void StartRfcommServer()
+        public async void startBroadcast()
         {
             try
             {
@@ -67,40 +67,11 @@ namespace BluetoothChatPrototype.Network
             }
             catch(Exception e)
             {
-                disconnect();
                 Console.WriteLine("Error while creating socket: " + e.Message);
             }
 
 
         }
-
-        private void disconnect()
-        {
-            if(commServiceProvider != null)
-            {
-                commServiceProvider.StopAdvertising();
-                commServiceProvider = null;
-            }
-
-            if(listener != null)
-            {
-                listener.Dispose();
-                listener = null;
-            }
-
-            if(socket != null)
-            {
-                socket.Dispose();
-                socket = null;
-            }
-
-            if(writer != null)
-            {
-                writer.DetachStream();
-                writer = null;
-            }
-            Console.WriteLine("Disconnected from device.");
-         }
 
     }
 }
