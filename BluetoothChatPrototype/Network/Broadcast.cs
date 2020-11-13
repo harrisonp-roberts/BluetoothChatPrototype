@@ -27,6 +27,8 @@ namespace BluetoothChatPrototype.Network
                 Console.WriteLine("Initializing Session Description Protocal (SDP) Attributes");
                 setupBroadcastAttributes(commServiceProvider);
                 Console.WriteLine("SDP Attributes Initialized");
+
+                commServiceProvider.StartAdvertising(listener, true);
             }
             catch (Exception ex)
             {
