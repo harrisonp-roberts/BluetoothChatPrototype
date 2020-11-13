@@ -1,4 +1,5 @@
-﻿using BluetoothChatPrototype.Network;
+﻿using BluetoothChatPrototype.Constants;
+using BluetoothChatPrototype.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,14 @@ namespace BluetoothChatPrototype
     {
         static void Main(string[] args)
         {
+
+            Task task = Task.Run(() =>
+            {
+                Form1 form = new Form1();
+                form.Text = "Ad Hoc Chat Application";
+                form.ShowDialog();
+            });
+
             Console.WriteLine("Would you like to broadcast (b) or receive (r)");
             char input = Console.ReadKey().KeyChar;
             Console.WriteLine();
@@ -25,6 +34,8 @@ namespace BluetoothChatPrototype
             }
 
             Console.ReadKey();
+
+
         }
     }
 }
