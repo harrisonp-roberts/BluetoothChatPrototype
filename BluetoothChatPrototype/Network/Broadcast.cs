@@ -72,7 +72,6 @@ namespace BluetoothChatPrototype.Network
             }
             catch(Exception e)
             {
-                disconnect();
                 Console.WriteLine("Error while creating socket: " + e.Message);
             }
         }

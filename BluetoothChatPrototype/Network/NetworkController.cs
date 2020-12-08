@@ -14,7 +14,7 @@ namespace BluetoothChatPrototype.Network
         private Broadcast broadcast;
         private LinkedList<ConnectedDevice> devices;
 
-        NetworkController()
+        public NetworkController()
         {
             search = new Receive();
             broadcast = new Broadcast();
@@ -32,7 +32,7 @@ namespace BluetoothChatPrototype.Network
             Console.WriteLine("Initializing Search...");
             search.Initialize(this);
             Console.WriteLine("Search Initialized");
-            Thread.Sleep(10000);
+            Thread.Sleep(40000);
             Console.WriteLine("Search Completed. Stopping...");
             search.Stop();
             Console.WriteLine("Search Stopped. Broadcasting Attributes...");
