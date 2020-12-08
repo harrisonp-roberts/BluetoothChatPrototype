@@ -12,9 +12,12 @@ namespace BluetoothChatPrototype.Network
         private StreamSocketListener listener;
         private StreamSocket socket;
         private DataWriter writer;
+        private NetworkController netctl;
 
-        public async void startBroadcast()
+        public async void startBroadcast(NetworkController netctl)
         {
+            this.netctl = netctl;
+
             try
             {
                 commServiceProvider = await RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(Constants.Constants.broadcastGuid));
@@ -63,15 +66,14 @@ namespace BluetoothChatPrototype.Network
 
                 writer = new DataWriter(socket.OutputStream);
                 var reader = new DataReader(socket.InputStream);
+                var connectedDevice = new ConnectedDevice(device.Name, device, writer, reader);
+                netctl.addDevice(connectedDevice);
                 Console.WriteLine("Connected to Client: " + device.Name);
             }
             catch(Exception e)
             {
                 Console.WriteLine("Error while creating socket: " + e.Message);
             }
-
-
         }
-
     }
 }

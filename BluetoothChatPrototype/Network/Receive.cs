@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
@@ -22,6 +21,7 @@ namespace BluetoothChatPrototype.Network
     {
         DeviceWatcher deviceWatcher;
         private BluetoothDevice targetDevice;
+        private NetworkController netctl;
         public ObservableCollection<DeviceInformation> BroadcastingDevices
         {
             get;
@@ -54,6 +54,7 @@ namespace BluetoothChatPrototype.Network
 
             Console.WriteLine("Device Watcher Initialized. Searching for connections...");
             deviceWatcher.Start();
+            Console.WriteLine("DeviceWatcher Status: " + deviceWatcher.Status);
         }
 
         private async void connect(DeviceInformation devInfo)
@@ -95,6 +96,10 @@ namespace BluetoothChatPrototype.Network
                         DataReader chatReader = new DataReader(bluetoothSocket.InputStream);
 
                         Console.WriteLine("Connection to " + devInfo.Name + " established. Awaiting data...");
+
+                        var connectedDevice = new ConnectedDevice(devInfo.Name, targetDevice, bluetoothWriter, chatReader);
+                        netctl.addDevice(connectedDevice);
+
                         readSocket(chatReader, bluetoothSocket);
                     }
                     else
@@ -133,10 +138,21 @@ namespace BluetoothChatPrototype.Network
             }
         }
 
-        public async void Initialize()
+        public async void Initialize(NetworkController netctl)
         {
+            this.netctl = netctl;
             BroadcastingDevices = new ObservableCollection<DeviceInformation>();
             InitWatch();
+        }
+
+        public void Stop()
+        {
+            if (deviceWatcher != null && deviceWatcher.Status.Equals(DeviceWatcherStatus.Started))
+            {
+                deviceWatcher.Stop();
+            }
+
+            deviceWatcher = null;
         }
 
     }
