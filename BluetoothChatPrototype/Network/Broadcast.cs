@@ -3,6 +3,7 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
+using static BluetoothChatPrototype.Logging.Log;
 
 namespace BluetoothChatPrototype.Network
 {
@@ -27,16 +28,16 @@ namespace BluetoothChatPrototype.Network
 
                 await listener.BindServiceNameAsync(commServiceProvider.ServiceId.AsString(), SocketProtectionLevel.BluetoothEncryptionAllowNullAuthentication);
 
-                Console.WriteLine("Initializing Session Description Protocal (SDP) Attributes");
+                Logging.Log.Trace("Initializing Session Description Protocal (SDP) Attributes");
                 setupBroadcastAttributes(commServiceProvider);
-                Console.WriteLine("SDP Attributes Initialized");
+                Logging.Log.Trace("SDP Attributes Initialized");
 
                 commServiceProvider.StartAdvertising(listener, true);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occured advertising the bluetooth connection");
-                Console.WriteLine(ex.Message);
+                Logging.Log.Error("An error occured advertising the bluetooth connection");
+                Logging.Log.Error(ex.Message);
                 return;
             }
 
@@ -45,15 +46,15 @@ namespace BluetoothChatPrototype.Network
 
         private void setupBroadcastAttributes(RfcommServiceProvider rfcommProvider)
         {
-            Console.WriteLine("Initializing SDP Attributes...");
+            Logging.Log.Trace("Initializing SDP Attributes...");
             var writer = new DataWriter();
             writer.WriteByte(Constants.Constants.type);
             writer.WriteByte((byte)Constants.Constants.serviceName.Length);
             writer.UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.Utf8;
             writer.WriteString(Constants.Constants.serviceName);
 
-            Console.WriteLine("Service Name: " + Constants.Constants.serviceName);
-            Console.WriteLine("Provider Service ID: " + commServiceProvider.ServiceId.AsString());
+            Logging.Log.Trace("Service Name: " + Constants.Constants.serviceName);
+            Logging.Log.Trace("Provider Service ID: " + commServiceProvider.ServiceId.AsString());
 
             rfcommProvider.SdpRawAttributes.Add(Constants.Constants.serviceNameID, writer.DetachBuffer());
         }
@@ -71,7 +72,7 @@ namespace BluetoothChatPrototype.Network
                 var reader = new DataReader(socket.InputStream);
                 var connectedDevice = new ConnectedDevice(device.Name, device, writer, reader, netctl);
                 netctl.addDevice(connectedDevice);
-                Console.WriteLine("Connected to Client: " + device.Name);
+                Logging.Log.Trace("Connected to Client: " + device.Name);
             }
             catch(Exception e)
             {

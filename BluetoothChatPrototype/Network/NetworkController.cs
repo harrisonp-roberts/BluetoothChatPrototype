@@ -23,27 +23,25 @@ namespace BluetoothChatPrototype.Network
 
         public void start()
         {
-            Console.WriteLine("Initializing Search...");
+            Logging.Log.Trace("Initializing Search...");
             search.Initialize(this);
-            Console.WriteLine("Search Initialized");
+            Logging.Log.Trace("Search Initialized");
             Thread.Sleep(40000);
-            Console.WriteLine("Search Completed. Stopping...");
+            Logging.Log.Trace("Search Completed. Stopping...");
             search.Stop();
-            Console.WriteLine("Search Stopped. Broadcasting Attributes...");
+            Logging.Log.Trace("Search Stopped. Broadcasting Attributes...");
             broadcast.startBroadcast(this);
-            Console.WriteLine("WAITING TO PRINT CONNECTED DEVICES");
+            Logging.Log.Trace("WAITING TO PRINT CONNECTED DEVICES");
             Thread.Sleep(10000);
-            Console.WriteLine("PRINTING CONNECTED DEVICES");
+            Logging.Log.Trace("PRINTING CONNECTED DEVICES");
             foreach(var d in devices) {
-                Console.WriteLine("Device Name: " + d.name + ", Info: " + d.device.DeviceId);
+                Logging.Log.Trace("Device Name: " + d.name + ", Info: " + d.device.DeviceId);
             }
         }
 
         public void addDevice(ConnectedDevice device)
         {
-            Console.BackgroundColor = ConsoleColor.Green;
-            Console.WriteLine("Added " + device.name);
-            Console.ResetColor();
+            Logging.Log.Info("Added " + device.name);
             devices.AddLast(device);
         }
 
@@ -57,7 +55,7 @@ namespace BluetoothChatPrototype.Network
 
         public void receiveMessage(Message m)
         {
-            Console.WriteLine("Message Received From: " + m.sender);
+            Logging.Log.Info("Message Received From: " + m.sender);
         }
 
     }

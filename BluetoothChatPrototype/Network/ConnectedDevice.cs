@@ -69,7 +69,7 @@ namespace BluetoothChatPrototype.Network
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An Error Occured");
+                Logging.Log.Error("An Error Occured");
             }
         }
         

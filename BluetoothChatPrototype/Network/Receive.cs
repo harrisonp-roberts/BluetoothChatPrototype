@@ -12,6 +12,7 @@ using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
 using BluetoothChatPrototype.Constants;
+using static BluetoothChatPrototype.Logging.Log;
 
 namespace BluetoothChatPrototype.Network
 
@@ -30,7 +31,7 @@ namespace BluetoothChatPrototype.Network
 
         private void InitWatch()
         {
-            Console.WriteLine("Initializing Device Watcher");
+            Logging.Log.Trace("Initializing Device Watcher");
 
             deviceWatcher = DeviceInformation.CreateWatcher("(System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\")",
                                                             Constants.Constants.deviceProperties,
@@ -38,7 +39,7 @@ namespace BluetoothChatPrototype.Network
 
             deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, foundDevice) =>
             {
-                Console.WriteLine("Attempting to connect to " + foundDevice.Name);
+                Logging.Log.Trace("Attempting to connect to " + foundDevice.Name);
                 connect(foundDevice);
             });
 
@@ -52,21 +53,21 @@ namespace BluetoothChatPrototype.Network
                 deviceWatcher.Start();
             });
 
-            Console.WriteLine("Device Watcher Initialized. Searching for connections...");
+            Logging.Log.Trace("Device Watcher Initialized. Searching for connections...");
             deviceWatcher.Start();
-            Console.WriteLine("DeviceWatcher Status: " + deviceWatcher.Status);
+            Logging.Log.Trace("DeviceWatcher Status: " + deviceWatcher.Status);
         }
 
         private async void connect(DeviceInformation devInfo)
         {
             try
             {
-                Console.WriteLine("Connecting to Bluetooth Device: " + devInfo.Name);
+                Logging.Log.Trace("Connecting to Bluetooth Device: " + devInfo.Name);
                 targetDevice = await BluetoothDevice.FromIdAsync(devInfo.Id);
 
                 targetDevice.ConnectionStatusChanged += new TypedEventHandler<BluetoothDevice, object>(async (btd, obj) =>
                 {
-                    Console.WriteLine("Changed Connection Status for " + btd.Name + " to " + btd.ConnectionStatus);
+                    Logging.Log.Trace("Changed Connection Status for " + btd.Name + " to " + btd.ConnectionStatus);
                 });
 
                 if (targetDevice != null)
@@ -95,7 +96,7 @@ namespace BluetoothChatPrototype.Network
                         bluetoothWriter = new DataWriter(bluetoothSocket.OutputStream);
                         DataReader chatReader = new DataReader(bluetoothSocket.InputStream);
 
-                        Console.WriteLine("Connection to " + devInfo.Name + " established. Awaiting data...");
+                        Logging.Log.Trace("Connection to " + devInfo.Name + " established. Awaiting data...");
 
                         var connectedDevice = new ConnectedDevice(devInfo.Name, targetDevice, bluetoothWriter, chatReader, netctl);
                         netctl.addDevice(connectedDevice);
@@ -104,17 +105,17 @@ namespace BluetoothChatPrototype.Network
                     }
                     else
                     {
-                        Console.WriteLine("No valid services could be found on " + devInfo.Name);
+                        Logging.Log.Error("No valid services could be found on " + devInfo.Name);
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Connection failed, target device not found.");
+                    Logging.Log.Error("Connection failed, target device not found.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An Exception Occured. The target device may not have an active service, or something went wrong.\n" + ex.Message);
+                Logging.Log.Error("An Exception Occured. The target device may not have an active service, or something went wrong.\n" + ex.Message);
                 return;
             }
         }
@@ -134,7 +135,7 @@ namespace BluetoothChatPrototype.Network
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Host Disconnection.");
+                Logging.Log.Error("Host Disconnection.");
             }
         }
 

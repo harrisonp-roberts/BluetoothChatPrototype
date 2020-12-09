@@ -107,7 +107,7 @@ namespace BluetoothChatPrototype.View
 
                 while (userInt < 0 || userInt > devices.Count)
                 {
-                    string userIn = Console.ReadLine();
+                    var userIn = Console.ReadLine();
                     userInt = int.Parse(userIn);
                     if (userInt >= 0 && userInt <= devices.Count)
                     {
