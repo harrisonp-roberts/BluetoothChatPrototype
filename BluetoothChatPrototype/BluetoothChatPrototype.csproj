@@ -71,10 +71,12 @@
     </Compile>
     <Compile Include="Network\Broadcast.cs" />
     <Compile Include="Network\ConnectedDevice.cs" />
+    <Compile Include="Network\Message.cs" />
     <Compile Include="Network\NetworkController.cs" />
     <Compile Include="Network\Receive.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\UserInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

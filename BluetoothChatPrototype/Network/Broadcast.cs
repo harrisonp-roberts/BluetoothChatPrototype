@@ -52,6 +52,9 @@ namespace BluetoothChatPrototype.Network
             writer.UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.Utf8;
             writer.WriteString(Constants.Constants.serviceName);
 
+            Console.WriteLine("Service Name: " + Constants.Constants.serviceName);
+            Console.WriteLine("Provider Service ID: " + commServiceProvider.ServiceId.AsString());
+
             rfcommProvider.SdpRawAttributes.Add(Constants.Constants.serviceNameID, writer.DetachBuffer());
         }
 
@@ -66,7 +69,7 @@ namespace BluetoothChatPrototype.Network
 
                 writer = new DataWriter(socket.OutputStream);
                 var reader = new DataReader(socket.InputStream);
-                var connectedDevice = new ConnectedDevice(device.Name, device, writer, reader);
+                var connectedDevice = new ConnectedDevice(device.Name, device, writer, reader, netctl);
                 netctl.addDevice(connectedDevice);
                 Console.WriteLine("Connected to Client: " + device.Name);
             }

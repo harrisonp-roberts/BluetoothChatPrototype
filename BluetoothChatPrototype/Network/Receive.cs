@@ -97,7 +97,7 @@ namespace BluetoothChatPrototype.Network
 
                         Console.WriteLine("Connection to " + devInfo.Name + " established. Awaiting data...");
 
-                        var connectedDevice = new ConnectedDevice(devInfo.Name, targetDevice, bluetoothWriter, chatReader);
+                        var connectedDevice = new ConnectedDevice(devInfo.Name, targetDevice, bluetoothWriter, chatReader, netctl);
                         netctl.addDevice(connectedDevice);
 
                         readSocket(chatReader, bluetoothSocket);

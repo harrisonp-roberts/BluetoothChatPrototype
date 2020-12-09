@@ -12,7 +12,7 @@ namespace BluetoothChatPrototype.Network
     {
         private Receive search;
         private Broadcast broadcast;
-        private LinkedList<ConnectedDevice> devices;
+        public LinkedList<ConnectedDevice> devices { get; }
 
         public NetworkController()
         {
@@ -21,12 +21,6 @@ namespace BluetoothChatPrototype.Network
             devices = new LinkedList<ConnectedDevice>();
         }
 
-        // This class should be Broadcaster/Receiver agnostic
-        // Basically that means that, when start is called, this class
-        // will search for existing connections for 10 seconds, then 
-        // it will fall back to receiving new connections.
-        // No matter what stage a new connection is discovered at, it should be
-        // added to a list of connections 
         public void start()
         {
             Console.WriteLine("Initializing Search...");
@@ -37,12 +31,33 @@ namespace BluetoothChatPrototype.Network
             search.Stop();
             Console.WriteLine("Search Stopped. Broadcasting Attributes...");
             broadcast.startBroadcast(this);
+            Console.WriteLine("WAITING TO PRINT CONNECTED DEVICES");
+            Thread.Sleep(10000);
+            Console.WriteLine("PRINTING CONNECTED DEVICES");
+            foreach(var d in devices) {
+                Console.WriteLine("Device Name: " + d.name + ", Info: " + d.device.DeviceId);
+            }
         }
 
         public void addDevice(ConnectedDevice device)
         {
-            Console.WriteLine("Adding Device.");
+            Console.BackgroundColor = ConsoleColor.Green;
+            Console.WriteLine("Added " + device.name);
+            Console.ResetColor();
             devices.AddLast(device);
+        }
+
+        public void sendMessage(string message, ConnectedDevice recipient)
+        {
+            string s = System.Environment.MachineName;
+            string r = recipient.name;
+            Message m = new Message(s, r, message);
+            recipient.sendMessage(m);
+        }
+
+        public void receiveMessage(Message m)
+        {
+            Console.WriteLine("Message Received From: " + m.sender);
         }
 
     }
