@@ -29,6 +29,7 @@ namespace BluetoothChatPrototype.Network
             Thread.Sleep(40000);
             Logging.Log.Trace("Search Completed. Stopping...");
             search.Stop();
+            search = null;
             Logging.Log.Trace("Search Stopped. Broadcasting Attributes...");
             broadcast.startBroadcast(this);
             Logging.Log.Trace("WAITING TO PRINT CONNECTED DEVICES");

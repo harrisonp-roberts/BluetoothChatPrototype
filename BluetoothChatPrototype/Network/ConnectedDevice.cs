@@ -43,21 +43,26 @@ namespace BluetoothChatPrototype.Network
             try
             {
                 uint size = await reader.LoadAsync(sizeof(uint));
+                Console.WriteLine("Size Received. Size: " + size);
                 if (size < sizeof(uint))
                 {
+                    Console.WriteLine("Size Not SIZEOF");
                     return;
                 }
 
                 uint length = reader.ReadUInt32();
+                Console.WriteLine("Length Received. Length: " + length);
                 uint actualStringLength = await reader.LoadAsync(length);
                 if (actualStringLength != length)
                 {
+                    Console.WriteLine("LENGTH NOT ACTUAL");
                     //netctl.disconnect(this)
                     // The underlying socket was closed before we were able to read the whole data
                     return;
                 }
 
                 var bytes = new byte[length];
+                Console.WriteLine("Received Bytes.");
                 reader.ReadBytes(bytes);
 
                 var message = Deserialize(bytes);
