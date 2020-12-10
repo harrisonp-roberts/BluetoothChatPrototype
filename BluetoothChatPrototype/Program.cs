@@ -20,16 +20,6 @@ namespace BluetoothChatPrototype
             thr.Start();
 
             UserInterface ui = new UserInterface(netCtl);
-
-
-            //BEGIN GUI
-            //Task task = Task.Run(() =>
-            //{
-            //    Form1 form = new Form1();
-            //    form.Text = "Ad Hoc Chat Application";
-            //    form.ShowDialog();
-            //});
-
         }
     }
 }

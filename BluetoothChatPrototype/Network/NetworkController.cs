@@ -25,21 +25,24 @@ namespace BluetoothChatPrototype.Network
         {
             Thread child = new Thread(new ParameterizedThreadStart(search.Initialize));
             child.Start(this);
-            Thread.Sleep(30000);
-            search.Stop();
-            child.Abort();
+            //Thread.Sleep(30000);
+            //search.Stop();
+            //search = null;
+            //child.Abort();
 
-            broadcast.startBroadcast(this);
-
-            foreach(var d in devices) {
-                Logging.Log.Trace("Device Name: " + d.name + ", Info: " + d.device.DeviceId);
-            }
+            //broadcast.startBroadcast(this);
         }
 
         public void addDevice(ConnectedDevice device)
         {
             Logging.Log.Info("Added " + device.name);
-            devices.AddLast(device);
+            if (devices.Find(device) == null)
+            {
+                devices.AddLast(device);
+            } else
+            {
+                Logging.Log.Error("Device already exists");
+            }
         }
 
         public void sendMessage(string message, ConnectedDevice recipient)

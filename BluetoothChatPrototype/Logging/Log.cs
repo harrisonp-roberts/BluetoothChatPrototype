@@ -8,7 +8,7 @@ namespace BluetoothChatPrototype.Logging
 {
     public static class Log
     {
-        private static bool trace = false;
+        private static bool trace = true;
         private static bool error = true;
         private static bool info = true;
 

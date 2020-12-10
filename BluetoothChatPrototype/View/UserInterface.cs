@@ -102,7 +102,7 @@ namespace BluetoothChatPrototype.View
             if (devices.Count > 0)
             {
                 Console.WriteLine("Who would you like to send a message to (0 - " + netctl.devices.Count + ")?");
-                viewMessages();
+                viewRecipients();
 
                 int userInt = -1;
 

@@ -27,7 +27,7 @@ namespace BluetoothChatPrototype.Network
 
         private void InitWatch()
         {
-            Logging.Log.Trace("Initializing Device Watcher");
+            Logging.Log.Trace("Initializing DeviceWatcher");
 
             deviceWatcher = DeviceInformation.CreateWatcher("(System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\")",
                                                             Constants.Constants.deviceProperties,
@@ -35,21 +35,22 @@ namespace BluetoothChatPrototype.Network
 
             deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, foundDevice) =>
             {
-                Logging.Log.Trace("Attempting to connect to " + foundDevice.Name);
+                Logging.Log.Trace("Found device: " + foundDevice.Name);
                 connect(foundDevice);
             });
 
             deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, object> ((deviceWatcher, obj) =>
             {
                 deviceWatcher.Stop();
+                Logging.Log.Trace("DeviceWatcher Status: " + deviceWatcher.Status);
             });
 
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((deviceWatcher, obj) =>
             {
                 deviceWatcher.Start();
+                Logging.Log.Trace("DeviceWatcher Status: " + deviceWatcher.Status);
             });
 
-            Logging.Log.Trace("Device Watcher Initialized. Searching for connections...");
             deviceWatcher.Start();
             Logging.Log.Trace("DeviceWatcher Status: " + deviceWatcher.Status);
         }
@@ -58,7 +59,7 @@ namespace BluetoothChatPrototype.Network
         {
             try
             {
-                Logging.Log.Trace("Connecting to Bluetooth Device: " + devInfo.Name);
+                Logging.Log.Trace("Attempting to connect to Bluetooth Device: " + devInfo.Name);
                 targetDevice = await BluetoothDevice.FromIdAsync(devInfo.Id);
 
                 targetDevice.ConnectionStatusChanged += new TypedEventHandler<BluetoothDevice, object>(async (btd, obj) =>
@@ -71,10 +72,13 @@ namespace BluetoothChatPrototype.Network
                     const BluetoothCacheMode bluetoothCacheMode = BluetoothCacheMode.Uncached;
                     var targetBluetoothServices = await targetDevice.GetRfcommServicesForIdAsync(RfcommServiceId.FromUuid(Constants.Constants.broadcastGuid), bluetoothCacheMode);
 
+                    Logging.Log.Trace("Searching Target Device " + devInfo.Name + " for Bluetooth Chat Service.");
+
                     var retrievedServices = targetBluetoothServices.Services;
 
                     if (retrievedServices.Count > 0)
                     {
+                        Logging.Log.Trace("Bluetooth Chat Service Found on " + devInfo.Name);
                         var retrievedService = retrievedServices[0];
                         var attributes = await retrievedService.GetSdpRawAttributesAsync();
                         var attributeReader = DataReader.FromBuffer(attributes[Constants.Constants.serviceNameID]);
@@ -92,46 +96,25 @@ namespace BluetoothChatPrototype.Network
                         bluetoothWriter = new DataWriter(bluetoothSocket.OutputStream);
                         DataReader chatReader = new DataReader(bluetoothSocket.InputStream);
 
-                        Logging.Log.Trace("Connection to " + devInfo.Name + " established. Awaiting data...");
+                        Logging.Log.Trace("Connection to " + devInfo.Name + " Chat Service Established. Awaiting data...");
 
                         var connectedDevice = new ConnectedDevice(devInfo.Name, targetDevice, bluetoothWriter, chatReader, netctl);
                         netctl.addDevice(connectedDevice);
-
-                        readSocket(chatReader, bluetoothSocket);
                     }
                     else
                     {
-                        Logging.Log.Error("No valid services could be found on " + devInfo.Name);
+                        Logging.Log.Trace("No valid services could be found on " + devInfo.Name + ". Ignoring.");
                     }
                 }
                 else
                 {
-                    Logging.Log.Error("Connection failed, target device not found.");
+                    Logging.Log.Trace("Target Device is Null.");
                 }
             }
             catch (Exception ex)
             {
                 Logging.Log.Error("An Exception Occured. The target device may not have an active service, or something went wrong.\n" + ex.Message);
                 return;
-            }
-        }
-
-        private async void readSocket(DataReader chatReader, StreamSocket chatSocket)
-        {
-            try
-            {
-                var size = await chatReader.LoadAsync(sizeof(uint));
-                var stringLength = chatReader.ReadUInt32();
-                var actualStringLength = await chatReader.LoadAsync(stringLength);
-
-                if (actualStringLength == stringLength)
-                {
-                    readSocket(chatReader, chatSocket);
-                } 
-            }
-            catch (Exception ex)
-            {
-                Logging.Log.Error("Host Disconnection.");
             }
         }
 
@@ -143,11 +126,7 @@ namespace BluetoothChatPrototype.Network
 
         public void Stop()
         {
-            if (deviceWatcher != null && deviceWatcher.Status.Equals(DeviceWatcherStatus.Started))
-            {
-                deviceWatcher.Stop();
-            }
-
+            deviceWatcher.Stop();
             deviceWatcher = null;
         }
 
