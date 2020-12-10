@@ -16,6 +16,7 @@ namespace BluetoothChatPrototype.View
             this.netctl = netctl;
 
             string userIn = "";
+
             while(!userIn.ToLower().Equals("q"))
             {
                 Console.WriteLine("Please Select an Option (1 - 3, q to quit):" +
@@ -113,7 +114,7 @@ namespace BluetoothChatPrototype.View
                     {
                         Console.WriteLine("Please Enter Your Message...");
                         string userMessage = Console.ReadLine();
-                        
+                        netctl.sendMessage(userMessage, devices.ElementAt(userInt));
                     }
                     else
                     {

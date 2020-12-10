@@ -69,6 +69,7 @@
     <Compile Include="Forms\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logging\Log.cs" />
     <Compile Include="Network\Broadcast.cs" />
     <Compile Include="Network\ConnectedDevice.cs" />
     <Compile Include="Network\Message.cs" />
