@@ -27,14 +27,21 @@ namespace BluetoothChatPrototype.Network
             this.device = device;
             this.writer = writer;
             this.reader = reader;
+            this.netctl = netctl;
+            receiveLoop();
         }
         public async void sendMessage(Message message)
         {
+            Console.WriteLine("SendMessage Called!");
             var serializedMessage = Serialize(message);
+            Console.WriteLine("Message Serialized");
             writer.WriteUInt32((uint)serializedMessage.Length);
             writer.WriteBytes(serializedMessage);
-            await writer.StoreAsync();
+            Console.WriteLine("Message Written to stream");
+            var x = await writer.StoreAsync();
+            Console.WriteLine(x);
             messages.AddLast(message);
+            Console.WriteLine("Message Added to History");
         }
 
         public async void receiveLoop()
@@ -56,7 +63,7 @@ namespace BluetoothChatPrototype.Network
                 if (actualStringLength != length)
                 {
                     Console.WriteLine("LENGTH NOT ACTUAL");
-                    //netctl.disconnect(this)
+                    // netctl.disconnect(this)
                     // The underlying socket was closed before we were able to read the whole data
                     return;
                 }

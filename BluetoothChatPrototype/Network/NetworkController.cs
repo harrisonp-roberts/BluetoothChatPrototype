@@ -23,18 +23,14 @@ namespace BluetoothChatPrototype.Network
 
         public void start()
         {
-            Logging.Log.Trace("Initializing Search...");
-            search.Initialize(this);
-            Logging.Log.Trace("Search Initialized");
-            Thread.Sleep(40000);
-            Logging.Log.Trace("Search Completed. Stopping...");
+            Thread child = new Thread(new ParameterizedThreadStart(search.Initialize));
+            child.Start(this);
+            Thread.Sleep(30000);
             search.Stop();
-            search = null;
-            Logging.Log.Trace("Search Stopped. Broadcasting Attributes...");
+            child.Abort();
+
             broadcast.startBroadcast(this);
-            Logging.Log.Trace("WAITING TO PRINT CONNECTED DEVICES");
-            Thread.Sleep(10000);
-            Logging.Log.Trace("PRINTING CONNECTED DEVICES");
+
             foreach(var d in devices) {
                 Logging.Log.Trace("Device Name: " + d.name + ", Info: " + d.device.DeviceId);
             }

@@ -23,11 +23,7 @@ namespace BluetoothChatPrototype.Network
         DeviceWatcher deviceWatcher;
         private BluetoothDevice targetDevice;
         private NetworkController netctl;
-        public ObservableCollection<DeviceInformation> BroadcastingDevices
-        {
-            get;
-            set;
-        }
+
 
         private void InitWatch()
         {
@@ -139,10 +135,9 @@ namespace BluetoothChatPrototype.Network
             }
         }
 
-        public async void Initialize(NetworkController netctl)
+        public void Initialize(object netctl)
         {
-            this.netctl = netctl;
-            BroadcastingDevices = new ObservableCollection<DeviceInformation>();
+            this.netctl = (NetworkController)netctl;
             InitWatch();
         }
 
