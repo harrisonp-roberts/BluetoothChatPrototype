@@ -9,7 +9,7 @@ namespace BluetoothChatPrototype.Logging
     public static class Log
     {
         private static bool trace = false;
-        private static bool error = true;
+        private static bool error = false;
         private static bool info = true;
 
         public static void Trace(string msg)
@@ -37,7 +37,7 @@ namespace BluetoothChatPrototype.Logging
             if(info)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("INFO: " + msg);
+                Console.WriteLine("\nINFO: " + msg + "\n");
                 Console.ResetColor();
             }
         }

@@ -15,7 +15,7 @@ namespace BluetoothChatPrototype.Network
         private DataWriter writer;
         private NetworkController netctl;
 
-        public async void startBroadcast(NetworkController netctl)
+        public async void StartBroadcast(NetworkController netctl)
         {
             this.netctl = netctl;
 
@@ -23,13 +23,13 @@ namespace BluetoothChatPrototype.Network
             {
                 commServiceProvider = await RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(Constants.Constants.broadcastGuid));
                 listener = new StreamSocketListener();
-                listener.ConnectionReceived += recieveConnection;
+                listener.ConnectionReceived += RecieveConnection;
                 var rfcomm = commServiceProvider.ServiceId.AsString();
 
                 await listener.BindServiceNameAsync(commServiceProvider.ServiceId.AsString(), SocketProtectionLevel.BluetoothEncryptionAllowNullAuthentication);
 
                 Logging.Log.Trace("Initializing Session Description Protocal (SDP) Attributes");
-                setupBroadcastAttributes(commServiceProvider);
+                SetupBroadcastAttributes(commServiceProvider);
                 Logging.Log.Trace("SDP Attributes Initialized");
 
                 commServiceProvider.StartAdvertising(listener, true);
@@ -44,7 +44,7 @@ namespace BluetoothChatPrototype.Network
             Console.WriteLine("Broadcasting Connections.");
         }
 
-        private void setupBroadcastAttributes(RfcommServiceProvider rfcommProvider)
+        private void SetupBroadcastAttributes(RfcommServiceProvider rfcommProvider)
         {
             Logging.Log.Trace("Initializing SDP Attributes...");
             var writer = new DataWriter();
@@ -59,7 +59,7 @@ namespace BluetoothChatPrototype.Network
             rfcommProvider.SdpRawAttributes.Add(Constants.Constants.serviceNameID, writer.DetachBuffer());
         }
 
-        private async void recieveConnection(StreamSocketListener listener, StreamSocketListenerConnectionReceivedEventArgs args)
+        private async void RecieveConnection(StreamSocketListener listener, StreamSocketListenerConnectionReceivedEventArgs args)
         {
             Console.WriteLine("Connection Received from: " + listener.Information);
 
@@ -71,7 +71,7 @@ namespace BluetoothChatPrototype.Network
                 writer = new DataWriter(socket.OutputStream);
                 var reader = new DataReader(socket.InputStream);
                 var connectedDevice = new ConnectedDevice(device.Name, device, writer, reader, netctl);
-                netctl.addDevice(connectedDevice);
+                netctl.AddDevice(connectedDevice);
                 Logging.Log.Trace("Connected to Client: " + device.Name);
             }
             catch(Exception e)

@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Windows.Devices.Bluetooth;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -28,9 +24,9 @@ namespace BluetoothChatPrototype.Network
             this.writer = writer;
             this.reader = reader;
             this.netctl = netctl;
-            receiveLoop();
+            ReceiveLoop();
         }
-        public async void sendMessage(Message message)
+        public async void SendMessage(Message message)
         {
             var serializedMessage = Serialize(message);
             writer.WriteUInt32((uint)serializedMessage.Length);
@@ -39,7 +35,7 @@ namespace BluetoothChatPrototype.Network
             messages.AddLast(message);
         }
 
-        public async void receiveLoop()
+        public async void ReceiveLoop()
         {
 
             try
@@ -49,7 +45,7 @@ namespace BluetoothChatPrototype.Network
                 if(size == 0)
                 {
                     Logging.Log.Error("Host Disconnection. Removing " + name);
-                    netctl.removeDevice(this);
+                    netctl.RemoveDevice(this);
                 }
 
                 if (size < sizeof(uint))
@@ -64,8 +60,6 @@ namespace BluetoothChatPrototype.Network
                 if (actualStringLength != length)
                 {
                     Logging.Log.Error("LENGTH NOT ACTUAL");
-                    // netctl.disconnect(this)
-                    // The underlying socket was closed before we were able to read the whole data
                     return;
                 }
 
@@ -76,9 +70,9 @@ namespace BluetoothChatPrototype.Network
                 message.timestamp = DateTime.Now;
                 messages.AddLast(message);
 
-                netctl.receiveMessage(message);
+                netctl.ReceiveMessage(message);
 
-                receiveLoop();
+                ReceiveLoop();
             }
             catch (Exception ex)
             {

@@ -16,7 +16,7 @@ namespace BluetoothChatPrototype
         {
 
             NetworkController netCtl = new NetworkController();
-            Thread thr = new Thread(new ThreadStart(netCtl.start));
+            Thread thr = new Thread(new ThreadStart(netCtl.Start));
             thr.Start();
 
             UserInterface ui = new UserInterface(netCtl);

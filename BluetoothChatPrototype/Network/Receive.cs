@@ -36,7 +36,7 @@ namespace BluetoothChatPrototype.Network
             deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, foundDevice) =>
             {
                 Logging.Log.Trace("Found device: " + foundDevice.Name);
-                connect(foundDevice);
+                Connect(foundDevice);
             });
 
             deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, object> ((deviceWatcher, obj) =>
@@ -55,7 +55,7 @@ namespace BluetoothChatPrototype.Network
             Logging.Log.Trace("DeviceWatcher Status: " + deviceWatcher.Status);
         }
 
-        private async void connect(DeviceInformation devInfo)
+        private async void Connect(DeviceInformation devInfo)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace BluetoothChatPrototype.Network
                         Logging.Log.Trace("Connection to " + devInfo.Name + " Chat Service Established. Awaiting data...");
 
                         var connectedDevice = new ConnectedDevice(devInfo.Name, targetDevice, bluetoothWriter, chatReader, netctl);
-                        netctl.addDevice(connectedDevice);
+                        netctl.AddDevice(connectedDevice);
                     }
                     else
                     {

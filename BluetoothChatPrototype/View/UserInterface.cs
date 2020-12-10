@@ -28,19 +28,19 @@ namespace BluetoothChatPrototype.View
 
                 if(userIn.Equals("1"))
                 {
-                    viewRecipients();
+                    ViewRecipients();
                 } else if (userIn.Equals("2"))
                 {
-                    viewMessages();
+                    ViewMessages();
                 } else if (userIn.Equals("3"))
                 {
-                    sendMessage();
+                    SendMessage();
                 }
 
             }
         }
 
-        private void viewRecipients()
+        private void ViewRecipients()
         {
             var devices = netctl.devices;
             Console.WriteLine();
@@ -56,7 +56,7 @@ namespace BluetoothChatPrototype.View
 
         }
 
-        private void viewMessages()
+        private void ViewMessages()
         {
             var devices = netctl.devices;
 
@@ -106,14 +106,14 @@ namespace BluetoothChatPrototype.View
             }
         }
 
-        private void sendMessage()
+        private void SendMessage()
         {
             var devices = netctl.devices;
 
             if (devices.Count > 0)
             {
                 Console.WriteLine("Who would you like to message (0 - " + netctl.devices.Count + ")?");
-                viewRecipients();
+                ViewRecipients();
 
                 int userInt = -1;
 
@@ -125,7 +125,7 @@ namespace BluetoothChatPrototype.View
                     {
                         Console.WriteLine("\nEnter your message (Enter to send):");
                         string userMessage = Console.ReadLine();
-                        netctl.sendMessage(userMessage, devices.ElementAt(userInt));
+                        netctl.SendMessage(userMessage, devices.ElementAt(userInt));
                         Console.WriteLine();
                     }
                     else

@@ -21,19 +21,19 @@ namespace BluetoothChatPrototype.Network
             devices = new LinkedList<ConnectedDevice>();
         }
 
-        public void start()
+        public void Start()
         {
             Thread child = new Thread(new ParameterizedThreadStart(search.Initialize));
             child.Start(this);
-            //Thread.Sleep(30000);
-            //search.Stop();
-            //search = null;
-            //child.Abort();
+            Thread.Sleep(30000);
+            search.Stop();
+            search = null;
+            child.Abort();
 
-            //broadcast.startBroadcast(this);
+            broadcast.StartBroadcast(this);
         }
 
-        public void addDevice(ConnectedDevice device)
+        public void AddDevice(ConnectedDevice device)
         {
             Logging.Log.Info("Added " + device.name);
             if (devices.Find(device) == null)
@@ -45,22 +45,22 @@ namespace BluetoothChatPrototype.Network
             }
         }
 
-        public void removeDevice(ConnectedDevice device)
+        public void RemoveDevice(ConnectedDevice device)
         {
             Logging.Log.Trace("Removing " + device.name);
             Logging.Log.Info(device.name + " Has Disconnected.");
             devices.Remove(device);
         }
 
-        public void sendMessage(string message, ConnectedDevice recipient)
+        public void SendMessage(string message, ConnectedDevice recipient)
         {
             string s = System.Environment.MachineName;
             string r = recipient.name;
             Message m = new Message(s, r, message);
-            recipient.sendMessage(m);
+            recipient.SendMessage(m);
         }
 
-        public void receiveMessage(Message m)
+        public void ReceiveMessage(Message m)
         {
             Logging.Log.Info("Message Received From: " + m.sender);
         }
