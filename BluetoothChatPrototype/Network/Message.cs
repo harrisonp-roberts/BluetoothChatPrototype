@@ -12,15 +12,13 @@ namespace BluetoothChatPrototype.Network
         public string sender { get; set; }
         string recipient { get; set; }
         public string message { get; set; }
-        int hops { get; }
-        DateTime timestamp;
+        public DateTime timestamp { get; set; }
 
         public Message(string s, string r, string m)
         {
             this.sender = s;
             this.recipient = r;
             this.message = m;
-            hops = 0;
             timestamp = DateTime.Now;
         }
     }

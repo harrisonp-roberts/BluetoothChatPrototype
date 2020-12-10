@@ -43,6 +43,11 @@ namespace BluetoothChatPrototype.View
         private void viewRecipients()
         {
             var devices = netctl.devices;
+            Console.WriteLine();
+            if(devices.Count == 0)
+            {
+                Console.WriteLine("There Are no Connected Devices.");
+            }
 
             for(int i = 0; i < devices.Count; i++)
             {
@@ -64,6 +69,8 @@ namespace BluetoothChatPrototype.View
                     Console.WriteLine(i + ". " + devices.ElementAt(i).name);
                 }
 
+                Console.WriteLine();
+
                 int userInt = -1;
 
                 while (userInt < 0 || userInt > devices.Count)
@@ -75,14 +82,18 @@ namespace BluetoothChatPrototype.View
                         var from = devices.ElementAt(userInt);
                         var messages = from.messages;
 
+                        Console.WriteLine("\nConversation With " + from.name + "\n");
+
                         foreach (Message m in messages)
                         {
                             var sender = m.sender;
                             var message = m.message;
+                            var time = m.timestamp;
 
-                            Console.WriteLine(sender + ": " + message);
+                            Console.WriteLine(time.ToString() + " from " +sender + "\n> " + message + "\n");
                         }
 
+                        Console.WriteLine();
                     }
                     else
                     {
@@ -101,7 +112,7 @@ namespace BluetoothChatPrototype.View
 
             if (devices.Count > 0)
             {
-                Console.WriteLine("Who would you like to send a message to (0 - " + netctl.devices.Count + ")?");
+                Console.WriteLine("Who would you like to message (0 - " + netctl.devices.Count + ")?");
                 viewRecipients();
 
                 int userInt = -1;
@@ -112,9 +123,10 @@ namespace BluetoothChatPrototype.View
                     userInt = int.Parse(userIn);
                     if (userInt >= 0 && userInt <= devices.Count)
                     {
-                        Console.WriteLine("Please Enter Your Message...");
+                        Console.WriteLine("\nEnter your message (Enter to send):");
                         string userMessage = Console.ReadLine();
                         netctl.sendMessage(userMessage, devices.ElementAt(userInt));
+                        Console.WriteLine();
                     }
                     else
                     {

@@ -32,16 +32,11 @@ namespace BluetoothChatPrototype.Network
         }
         public async void sendMessage(Message message)
         {
-            Console.WriteLine("SendMessage Called!");
             var serializedMessage = Serialize(message);
-            Console.WriteLine("Message Serialized");
             writer.WriteUInt32((uint)serializedMessage.Length);
             writer.WriteBytes(serializedMessage);
-            Console.WriteLine("Message Written to stream");
-            var x = await writer.StoreAsync();
-            Console.WriteLine(x);
+            await writer.StoreAsync();
             messages.AddLast(message);
-            Console.WriteLine("Message Added to History");
         }
 
         public async void receiveLoop()
@@ -50,29 +45,35 @@ namespace BluetoothChatPrototype.Network
             try
             {
                 uint size = await reader.LoadAsync(sizeof(uint));
-                Console.WriteLine("Size Received. Size: " + size);
+
+                if(size == 0)
+                {
+                    Logging.Log.Error("Host Disconnection. Removing " + name);
+                    netctl.removeDevice(this);
+                }
+
                 if (size < sizeof(uint))
                 {
-                    Console.WriteLine("Size Not SIZEOF");
+                    Logging.Log.Error("Size Not SIZEOF");
                     return;
                 }
 
                 uint length = reader.ReadUInt32();
-                Console.WriteLine("Length Received. Length: " + length);
                 uint actualStringLength = await reader.LoadAsync(length);
+
                 if (actualStringLength != length)
                 {
-                    Console.WriteLine("LENGTH NOT ACTUAL");
+                    Logging.Log.Error("LENGTH NOT ACTUAL");
                     // netctl.disconnect(this)
                     // The underlying socket was closed before we were able to read the whole data
                     return;
                 }
 
                 var bytes = new byte[length];
-                Console.WriteLine("Received Bytes.");
                 reader.ReadBytes(bytes);
 
                 var message = Deserialize(bytes);
+                message.timestamp = DateTime.Now;
                 messages.AddLast(message);
 
                 netctl.receiveMessage(message);

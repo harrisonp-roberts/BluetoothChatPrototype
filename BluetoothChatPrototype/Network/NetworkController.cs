@@ -45,6 +45,13 @@ namespace BluetoothChatPrototype.Network
             }
         }
 
+        public void removeDevice(ConnectedDevice device)
+        {
+            Logging.Log.Trace("Removing " + device.name);
+            Logging.Log.Info(device.name + " Has Disconnected.");
+            devices.Remove(device);
+        }
+
         public void sendMessage(string message, ConnectedDevice recipient)
         {
             string s = System.Environment.MachineName;
